@@ -97,6 +97,67 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Export reviews to Google Sheets
+  app.post("/api/export-sheet", async (req, res) => {
+    try {
+      if (!SPREADSHEET_ID || !sheets) {
+        return res.status(400).json({ 
+          message: "Google Sheets not configured. Please set GOOGLE_SHEET_ID and GOOGLE_SERVICE_ACCOUNT_KEY environment variables." 
+        });
+      }
+
+      // Get all reviews from storage
+      const reviews = await storage.getReviews();
+      
+      if (reviews.length === 0) {
+        return res.status(400).json({ message: "No reviews to export" });
+      }
+
+      // Prepare data for Google Sheets
+      const headers = ["timestamp", "rating", "type", "comments", "email"];
+      const rows = reviews.map(review => [
+        review.createdAt.toISOString(),
+        review.rating,
+        review.sentiment,
+        review.comment || "",
+        review.email || ""
+      ]);
+
+      // Clear existing data and write new data
+      await sheets.spreadsheets.values.clear({
+        spreadsheetId: SPREADSHEET_ID,
+        range: "Sheet1!A:E",
+      });
+
+      // Write headers and data
+      await sheets.spreadsheets.values.update({
+        spreadsheetId: SPREADSHEET_ID,
+        range: "Sheet1!A1:E1",
+        valueInputOption: "RAW",
+        requestBody: {
+          values: [headers],
+        },
+      });
+
+      await sheets.spreadsheets.values.update({
+        spreadsheetId: SPREADSHEET_ID,
+        range: `Sheet1!A2:E${rows.length + 1}`,
+        valueInputOption: "RAW",
+        requestBody: {
+          values: rows,
+        },
+      });
+
+      res.json({ 
+        message: "Successfully exported to Google Sheets",
+        exportedCount: reviews.length 
+      });
+    } catch (error) {
+      console.error("Error exporting to Google Sheets:", error);
+      res.status(500).json({ message: "Failed to export to Google Sheets" });
+    }
+  });
+
   const httpServer = createServer(app);
   return httpServer;
 }

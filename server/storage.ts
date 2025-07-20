@@ -25,6 +25,8 @@ export class MemStorage implements IStorage {
     const review: Review = {
       ...insertReview,
       id,
+      email: insertReview.email || null,
+      comment: insertReview.comment || null,
       createdAt: new Date(),
     };
     this.reviews.set(id, review);
@@ -62,10 +64,10 @@ export class MemStorage implements IStorage {
 
     const ratingDistribution = reviewsList.reduce(
       (acc, review) => {
-        acc[review.rating]++;
+        acc[review.rating as keyof typeof acc]++;
         return acc;
       },
-      { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 }
+      { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 } as Record<1 | 2 | 3 | 4 | 5, number>
     );
 
     return {
