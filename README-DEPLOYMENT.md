@@ -4,7 +4,11 @@
 - **Live URL**: https://gokulkumar-week-2.netlify.app/
 - **Status**: Successfully deployed
 
-## Backend (Render) - Deploy Instructions
+## Backend (Render) ✅ DEPLOYED
+- **Live URL**: https://gokulkumar-week-2.onrender.com
+- **Status**: Successfully deployed (may take 1-2 minutes to start up on first request)
+
+## Updated Frontend for Production
 
 ### Step 1: Create Render Account
 1. Go to [render.com](https://render.com) and sign up/login
@@ -25,10 +29,17 @@ Add these environment variables in Render dashboard:
 - `GOOGLE_SERVICE_ACCOUNT_KEY` = (Your Google Service Account JSON)
 - `GOOGLE_SHEET_ID` = (Your Google Sheet ID)
 
-### Step 4: Update Frontend (After Backend Deployment)
-Once your backend is deployed at `https://feedbackpro-backend.onrender.com`, update frontend:
-1. Add `VITE_API_BASE_URL=https://feedbackpro-backend.onrender.com` to Netlify environment variables
-2. Redeploy frontend
+## Ready-to-Deploy Frontend
+Your frontend is now built and configured with your backend URL:
+- **Built with**: `VITE_API_BASE_URL=https://gokulkumar-week-2.onrender.com`
+- **Location**: `dist/public/` folder
+- **Ready for**: Drag-and-drop to Netlify
+
+### Deploy Updated Frontend to Netlify:
+1. **Go to your Netlify site**: https://gokulkumar-week-2.netlify.app/
+2. **Go to "Site Overview"** → **"Deploys"**
+3. **Drag and drop** the entire `dist/public` folder to deploy
+4. **Your site will update** with the new backend connection
 
 ## Architecture
 - **Frontend**: React + Vite on Netlify
