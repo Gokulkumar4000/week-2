@@ -1,11 +1,8 @@
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { useEffect, useRef, useState } from "react";
+import { useQuery } from "@tanstack/react-query";
+import { useEffect, useRef } from "react";
 import { Card, CardContent } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Star, TrendingUp, Smile, Calendar, Download, Loader2 } from "lucide-react";
+import { Star, TrendingUp, Smile, Calendar } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
-import { useToast } from "@/hooks/use-toast";
-import { apiRequest } from "@/lib/queryClient";
 import type { Review } from "@shared/schema";
 
 // Chart.js imports
@@ -32,37 +29,12 @@ ChartJS.register(
 );
 
 export function AdminDashboard() {
-  const { toast } = useToast();
-  const queryClient = useQueryClient();
-  
   const { data: stats, isLoading: statsLoading } = useQuery({
     queryKey: ["/api/reviews/stats"],
   });
 
   const { data: reviews, isLoading: reviewsLoading } = useQuery<Review[]>({
     queryKey: ["/api/reviews"],
-  });
-
-  const exportToSheets = useMutation({
-    mutationFn: async () => {
-      const response = await apiRequest("POST", "/api/export-sheet", {});
-      return response.json();
-    },
-    onSuccess: (data) => {
-      toast({
-        title: "Export Successful",
-        description: `Successfully exported ${data.exportedCount} reviews to Google Sheets`,
-        variant: "default",
-      });
-    },
-    onError: (error: any) => {
-      const errorMessage = error.message || "Failed to export to Google Sheets";
-      toast({
-        title: "Export Failed",
-        description: errorMessage,
-        variant: "destructive",
-      });
-    },
   });
 
   const recentReviews = reviews?.slice(0, 5) || [];
@@ -225,30 +197,9 @@ export function AdminDashboard() {
 
   return (
     <div className="max-w-7xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
-      <div className="mb-8 flex flex-col sm:flex-row sm:items-center sm:justify-between">
-        <div>
-          <h2 className="text-3xl font-bold text-slate-900 mb-2">Admin Dashboard</h2>
-          <p className="text-secondary">Real-time analytics and feedback insights</p>
-        </div>
-        <div className="mt-4 sm:mt-0">
-          <Button
-            onClick={() => exportToSheets.mutate()}
-            disabled={exportToSheets.isPending || !reviews || reviews.length === 0}
-            className="bg-success hover:bg-success/90 text-white"
-          >
-            {exportToSheets.isPending ? (
-              <>
-                <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                Exporting...
-              </>
-            ) : (
-              <>
-                <Download className="w-4 h-4 mr-2" />
-                Export to Google Sheet
-              </>
-            )}
-          </Button>
-        </div>
+      <div className="mb-8">
+        <h2 className="text-3xl font-bold text-slate-900 mb-2">Admin Dashboard</h2>
+        <p className="text-secondary">Real-time analytics and feedback insights • Auto-sync to Google Sheets</p>
       </div>
 
       {/* Stats Overview */}

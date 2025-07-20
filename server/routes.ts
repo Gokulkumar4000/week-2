@@ -28,17 +28,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
         try {
           await sheets.spreadsheets.values.append({
             spreadsheetId: SPREADSHEET_ID,
-            range: "Reviews!A:F",
+            range: "Sheet1!A:E",
             valueInputOption: "RAW",
             requestBody: {
               values: [
                 [
-                  review.id,
-                  review.rating,
-                  review.comment || "",
-                  review.sentiment,
-                  review.email || "",
                   review.createdAt.toISOString(),
+                  review.rating,
+                  review.sentiment,
+                  review.comment || "",
+                  review.email || "",
                 ],
               ],
             },
@@ -59,24 +58,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Get all reviews
   app.get("/api/reviews", async (req, res) => {
     try {
-      // Try to sync from Google Sheets first if configured
-      if (SPREADSHEET_ID && sheets) {
-        try {
-          const response = await sheets.spreadsheets.values.get({
-            spreadsheetId: SPREADSHEET_ID,
-            range: "Reviews!A:F",
-          });
-
-          const rows = response.data.values;
-          if (rows && rows.length > 1) {
-            // Skip header row and sync data to memory storage
-            // This is a simplified sync - in production you'd want more sophisticated merging
-            console.log("Synced data from Google Sheets");
-          }
-        } catch (sheetsError) {
-          console.error("Failed to read from Google Sheets:", sheetsError);
-        }
-      }
+      // Note: Real-time sync to Google Sheets happens during form submission
+      // No need to sync from Google Sheets here since our memory storage is the source of truth
 
       const reviews = await storage.getReviews();
       res.json(reviews);
@@ -97,66 +80,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Export reviews to Google Sheets
-  app.post("/api/export-sheet", async (req, res) => {
-    try {
-      if (!SPREADSHEET_ID || !sheets) {
-        return res.status(400).json({ 
-          message: "Google Sheets not configured. Please set GOOGLE_SHEET_ID and GOOGLE_SERVICE_ACCOUNT_KEY environment variables." 
-        });
-      }
 
-      // Get all reviews from storage
-      const reviews = await storage.getReviews();
-      
-      if (reviews.length === 0) {
-        return res.status(400).json({ message: "No reviews to export" });
-      }
-
-      // Prepare data for Google Sheets
-      const headers = ["timestamp", "rating", "type", "comments", "email"];
-      const rows = reviews.map(review => [
-        review.createdAt.toISOString(),
-        review.rating,
-        review.sentiment,
-        review.comment || "",
-        review.email || ""
-      ]);
-
-      // Clear existing data and write new data
-      await sheets.spreadsheets.values.clear({
-        spreadsheetId: SPREADSHEET_ID,
-        range: "Sheet1!A:E",
-      });
-
-      // Write headers and data
-      await sheets.spreadsheets.values.update({
-        spreadsheetId: SPREADSHEET_ID,
-        range: "Sheet1!A1:E1",
-        valueInputOption: "RAW",
-        requestBody: {
-          values: [headers],
-        },
-      });
-
-      await sheets.spreadsheets.values.update({
-        spreadsheetId: SPREADSHEET_ID,
-        range: `Sheet1!A2:E${rows.length + 1}`,
-        valueInputOption: "RAW",
-        requestBody: {
-          values: rows,
-        },
-      });
-
-      res.json({ 
-        message: "Successfully exported to Google Sheets",
-        exportedCount: reviews.length 
-      });
-    } catch (error) {
-      console.error("Error exporting to Google Sheets:", error);
-      res.status(500).json({ message: "Failed to export to Google Sheets" });
-    }
-  });
 
   const httpServer = createServer(app);
   return httpServer;
