@@ -10,7 +10,7 @@ Use these exact settings in Render:
 
 | Setting | Value |
 |---------|--------|
-| **Build Command** | `npm install --production && npx esbuild server/index.ts --platform=node --packages=external --bundle --format=esm --outdir=dist` |
+| **Build Command** | `npm install --production && npx esbuild server/index.production.ts --platform=node --packages=external --bundle --format=esm --outdir=dist` |
 | **Start Command** | `npm start` |
 | **Node Version** | `20.16.11` |
 
