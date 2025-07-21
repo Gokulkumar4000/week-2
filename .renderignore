@@ -1,0 +1,13 @@
+client/
+dist/public/
+node_modules/
+.git/
+attached_assets/
+*.md
+vite.config.ts
+tailwind.config.ts
+postcss.config.js
+components.json
+.local/
+_redirects
+netlify.toml
