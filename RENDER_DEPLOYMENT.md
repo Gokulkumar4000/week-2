@@ -22,9 +22,11 @@ Use these settings:
 - **Name**: `feedbackpro-backend` (or your preferred name)
 - **Language**: `Node`
 - **Branch**: `main` (or your default branch)
+- **Root Directory**: Leave blank (uses repository root)
 - **Build Command**: `npm install && npm run build`
 - **Start Command**: `npm start`
 - **Instance Type**: `Free` (or paid plan for production)
+- **Auto Deploy**: `Yes` (recommended)
 
 ### Step 3: Set Environment Variables
 
