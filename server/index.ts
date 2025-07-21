@@ -9,12 +9,17 @@ app.use((req, res, next) => {
   const allowedOrigins = [
     'https://gokulkumar-week-2.netlify.app',
     'http://localhost:5000',
-    'http://localhost:3000'
-  ];
+    'http://localhost:3000',
+    'http://localhost:5173', // Vite dev server
+    process.env.FRONTEND_URL, // Allow environment variable override
+  ].filter(Boolean); // Remove undefined values
   
   const origin = req.headers.origin;
   if (allowedOrigins.includes(origin as string)) {
     res.setHeader('Access-Control-Allow-Origin', origin as string);
+  } else if (process.env.NODE_ENV === 'development') {
+    // Allow all origins in development
+    res.setHeader('Access-Control-Allow-Origin', '*');
   }
   
   res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');

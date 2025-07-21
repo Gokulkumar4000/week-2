@@ -80,7 +80,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-
+  // Health check endpoint for monitoring
+  app.get("/health", (req, res) => {
+    res.json({ 
+      status: "healthy", 
+      timestamp: new Date().toISOString(),
+      service: "feedbackpro-backend",
+      version: "1.0.0"
+    });
+  });
 
   const httpServer = createServer(app);
   return httpServer;

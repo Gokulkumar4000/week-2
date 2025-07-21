@@ -79,15 +79,27 @@ Preferred communication style: Simple, everyday language.
 
 ## Deployment Strategy
 
-### Production Build
-- Frontend builds to `dist/public` directory
-- Backend bundles to `dist/index.js` with external dependencies
-- Environment variables required: `DATABASE_URL`, `GOOGLE_SERVICE_ACCOUNT_KEY`, `GOOGLE_SHEET_ID`
+### Split Deployment Architecture
+- **Frontend**: Deployed to Netlify at `https://gokulkumar-week-2.netlify.app`
+- **Backend**: Configured for Render deployment with CORS support
+- **Separation**: Clean client/server separation for better scalability and security
 
-### Environment Configuration
-- Development: Uses tsx for server hot reload, Vite dev server for client
-- Production: Serves static files from Express with bundled server code
-- Database: Drizzle migrations managed separately with `db:push` command
+### Frontend (Netlify)
+- Static React build served from Netlify CDN
+- Environment variables: `VITE_API_URL` pointing to Render backend
+- Automatic deployment from Git repository
+
+### Backend (Render)
+- Express server bundled with esbuild for optimal performance
+- Environment variables: `NODE_ENV`, `GOOGLE_SERVICE_ACCOUNT_KEY`, `GOOGLE_SHEET_ID`, `DATABASE_URL`
+- CORS configured for Netlify domain and development origins
+- Health check endpoints for monitoring
+
+### Build Configuration
+- Frontend builds to `dist/public` directory (for local development)
+- Backend bundles to `dist/index.js` with external dependencies
+- Render-specific build command: `npm install && npm run build`
+- Production start command: `npm start`
 
 ### Memory Storage Fallback
 - MemStorage class provides in-memory storage when database is unavailable
