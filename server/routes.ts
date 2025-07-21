@@ -44,6 +44,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
           });
         } catch (sheetsError) {
           console.error("Failed to write to Google Sheets:", sheetsError);
+          console.error("Sheet ID:", SPREADSHEET_ID);
+          console.error("Auth configured:", !!auth);
           // Continue without failing the request
         }
       }
